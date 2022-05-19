@@ -6,6 +6,7 @@ const {response, errResponse} = require("../../../config/response");
 
 const regexEmail = require("regex-email");
 const {emit} = require("nodemon");
+const axios = require('axios');
 
 /**
  * API No. 0
@@ -15,6 +16,20 @@ const {emit} = require("nodemon");
 // exports.getTest = async function (req, res) {
 //     return res.send(response(baseResponse.SUCCESS))
 // }
+
+exports.test = async function(req, res) {
+    const test = req.query.test;
+    const test1 = req.query.test1;
+    const test2 = req.query.test2;
+
+    try {
+        let result = await axios.get(`https://bg6iespjn8.execute-api.ap-northeast-2.amazonaws.com/finaltest/test?test=${test}&test1=${test1}&test2=${test2}`);
+        console.log(result.data);
+        return res.send(response(baseResponse.SUCCESS, result.data));
+    } catch (err) {
+        console.log(err.message);
+    }
+}
 
 /**
  * API No. 1
