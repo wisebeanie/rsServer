@@ -50,7 +50,7 @@ exports.test = async function (req, res) {
       options,
       function (err, results) {
         if (err) throw err;
-
+        console.log(results[2]);
         res.send(response(baseResponse.SUCCESS, results[2]));
       }
     );
