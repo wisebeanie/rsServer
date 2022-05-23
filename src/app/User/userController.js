@@ -2,11 +2,12 @@ const jwtMiddleware = require("../../../config/jwtMiddleware");
 const userProvider = require("../../app/User/userProvider");
 const userService = require("../../app/User/userService");
 const baseResponse = require("../../../config/baseResponseStatus");
-const {response, errResponse} = require("../../../config/response");
+const { response, errResponse } = require("../../../config/response");
+const { spawn } = require("child_process");
 
 const regexEmail = require("regex-email");
-const {emit} = require("nodemon");
-const axios = require('axios');
+const { emit } = require("nodemon");
+const axios = require("axios");
 
 /**
  * API No. 0
@@ -17,19 +18,35 @@ const axios = require('axios');
 //     return res.send(response(baseResponse.SUCCESS))
 // }
 
-exports.test = async function(req, res) {
-    const test = req.query.test;
-    const test1 = req.query.test1;
-    const test2 = req.query.test2;
+exports.test = async function (req, res) {
+  // const test = req.query.test;
+  // const test1 = req.query.test1;
+  // const test2 = req.query.test2;
 
-    try {
-        let result = await axios.get(`https://bg6iespjn8.execute-api.ap-northeast-2.amazonaws.com/finaltest/test?test=${test}&test1=${test1}&test2=${test2}`);
-        console.log(result.data);
-        return res.send(response(baseResponse.SUCCESS, result.data));
-    } catch (err) {
-        console.log(err.message);
-    }
-}
+  try {
+    let dataTosend;
+    // let result = await axios.get(
+    //   `https://0jb9872hyk.execute-api.ap-northeast-2.amazonaws.com/default/rscf`
+    // );
+    // console.log(result.data);
+    // return res.send(response(baseResponse.SUCCESS, result.data));
+    const python = spawn("python3", ["src/app/User/화장품 추천 모델링/cf.py"]);
+
+    python.stdout.on("data", (data) => {
+      dataTosend = data.toString();
+      console.log(dataTosend);
+    });
+    python.on("close", (code) => {
+      res.send(response(baseResponse.SUCCESS, dataTosend));
+    });
+
+    python.stderr.on("data", function (data) {
+      console.log(data.toString());
+    });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
 
 /**
  * API No. 1
@@ -37,34 +54,31 @@ exports.test = async function(req, res) {
  * [POST] /app/users
  */
 exports.postUsers = async function (req, res) {
+  /**
+   * Body: email, password, nickname
+   */
+  const { email, password, nickname } = req.body;
 
-    /**
-     * Body: email, password, nickname
-     */
-    const {email, password, nickname} = req.body;
+  // 빈 값 체크
+  if (!email) return res.send(response(baseResponse.SIGNUP_EMAIL_EMPTY));
 
-    // 빈 값 체크
-    if (!email)
-        return res.send(response(baseResponse.SIGNUP_EMAIL_EMPTY));
+  // 길이 체크
+  if (email.length > 30)
+    return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH));
 
-    // 길이 체크
-    if (email.length > 30)
-        return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH));
+  // 형식 체크 (by 정규표현식)
+  if (!regexEmail.test(email))
+    return res.send(response(baseResponse.SIGNUP_EMAIL_ERROR_TYPE));
 
-    // 형식 체크 (by 정규표현식)
-    if (!regexEmail.test(email))
-        return res.send(response(baseResponse.SIGNUP_EMAIL_ERROR_TYPE));
+  // 기타 등등 - 추가하기
 
-    // 기타 등등 - 추가하기
+  const signUpResponse = await userService.createUser(
+    email,
+    password,
+    nickname
+  );
 
-
-    const signUpResponse = await userService.createUser(
-        email,
-        password,
-        nickname
-    );
-
-    return res.send(signUpResponse);
+  return res.send(signUpResponse);
 };
 
 /**
@@ -73,21 +87,20 @@ exports.postUsers = async function (req, res) {
  * [GET] /app/users
  */
 exports.getUsers = async function (req, res) {
+  /**
+   * Query String: email
+   */
+  const email = req.query.email;
 
-    /**
-     * Query String: email
-     */
-    const email = req.query.email;
-
-    if (!email) {
-        // 유저 전체 조회
-        const userListResult = await userProvider.retrieveUserList();
-        return res.send(response(baseResponse.SUCCESS, userListResult));
-    } else {
-        // 유저 검색 조회
-        const userListByEmail = await userProvider.retrieveUserList(email);
-        return res.send(response(baseResponse.SUCCESS, userListByEmail));
-    }
+  if (!email) {
+    // 유저 전체 조회
+    const userListResult = await userProvider.retrieveUserList();
+    return res.send(response(baseResponse.SUCCESS, userListResult));
+  } else {
+    // 유저 검색 조회
+    const userListByEmail = await userProvider.retrieveUserList(email);
+    return res.send(response(baseResponse.SUCCESS, userListByEmail));
+  }
 };
 
 /*
@@ -96,22 +109,22 @@ exports.getUsers = async function (req, res) {
     [GET] /users/:userIdx
 */
 exports.getUser = async function (req, res) {
-    /*
+  /*
         Path Variable: userIdx
     */
-    const userIdx = req.params.userIdx;
+  const userIdx = req.params.userIdx;
 
-    // validation
-    if(!userIdx) {
-        return res.send(errResponse(baseResponse.USER_USERIDX_EMPTY));
-    } 
-    if (userIdx <= 0) {
-        return res.send(errResponse(baseResponse.USER_USERIDX_LENGTH));
-    }
+  // validation
+  if (!userIdx) {
+    return res.send(errResponse(baseResponse.USER_USERIDX_EMPTY));
+  }
+  if (userIdx <= 0) {
+    return res.send(errResponse(baseResponse.USER_USERIDX_LENGTH));
+  }
 
-    const userIdxResult = await userProvider.retrieveUser(userIdx);
-    return res.send(response(baseResponse.SUCCESS, userIdxResult))
-}
+  const userIdxResult = await userProvider.retrieveUser(userIdx);
+  return res.send(response(baseResponse.SUCCESS, userIdxResult));
+};
 
 /**
  * API No. 3
@@ -119,18 +132,16 @@ exports.getUser = async function (req, res) {
  * [GET] /app/users/{userId}
  */
 exports.getUserById = async function (req, res) {
+  /**
+   * Path Variable: userId
+   */
+  const userId = req.params.userId;
 
-    /**
-     * Path Variable: userId
-     */
-    const userId = req.params.userId;
+  if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
 
-    if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
-
-    const userByUserId = await userProvider.retrieveUser(userId);
-    return res.send(response(baseResponse.SUCCESS, userByUserId));
+  const userByUserId = await userProvider.retrieveUser(userId);
+  return res.send(response(baseResponse.SUCCESS, userByUserId));
 };
-
 
 // TODO: After 로그인 인증 방법 (JWT)
 /**
@@ -140,16 +151,14 @@ exports.getUserById = async function (req, res) {
  * body : email, passsword
  */
 exports.login = async function (req, res) {
+  const { email, password } = req.body;
 
-    const {email, password} = req.body;
+  // TODO: email, password 형식적 Validation
 
-    // TODO: email, password 형식적 Validation
+  const signInResponse = await userService.postSignIn(email, password);
 
-    const signInResponse = await userService.postSignIn(email, password);
-
-    return res.send(signInResponse);
+  return res.send(signInResponse);
 };
-
 
 /**
  * API No. 5
@@ -159,39 +168,29 @@ exports.login = async function (req, res) {
  * body : nickname
  */
 exports.patchUsers = async function (req, res) {
+  // jwt - userId, path variable :userId
 
-    // jwt - userId, path variable :userId
+  const userIdFromJWT = req.verifiedToken.userId;
 
-    const userIdFromJWT = req.verifiedToken.userId
+  const userId = req.params.userId;
+  const nickname = req.body.nickname;
 
-    const userId = req.params.userId;
-    const nickname = req.body.nickname;
+  if (userIdFromJWT != userId) {
+    res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+  } else {
+    if (!nickname)
+      return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
 
-    if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
-    } else {
-        if (!nickname) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
-
-        const editUserInfo = await userService.editUser(userId, nickname)
-        return res.send(editUserInfo);
-    }
+    const editUserInfo = await userService.editUser(userId, nickname);
+    return res.send(editUserInfo);
+  }
 };
-
-
-
-
-
-
-
-
-
-
 
 /** JWT 토큰 검증 API
  * [GET] /app/auto-login
  */
 exports.check = async function (req, res) {
-    const userIdResult = req.verifiedToken.userId;
-    console.log(userIdResult);
-    return res.send(response(baseResponse.TOKEN_VERIFICATION_SUCCESS));
+  const userIdResult = req.verifiedToken.userId;
+  console.log(userIdResult);
+  return res.send(response(baseResponse.TOKEN_VERIFICATION_SUCCESS));
 };
