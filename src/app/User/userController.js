@@ -60,7 +60,7 @@ exports.test = async function (req, res) {
 };
 
 exports.test2 = async function (req, res) {
-  let { result } = body;
+  let { result } = req.body;
   res.send(response(baseResponse.SUCCESS, result));
 };
 
