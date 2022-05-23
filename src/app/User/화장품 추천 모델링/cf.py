@@ -65,6 +65,8 @@ def getData():
     url = 'http://18.232.223.21/test2'
 
     response = requests.post(url, json={'result': result})
+    
+    print(response)
 
 
     
