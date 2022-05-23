@@ -50,14 +50,16 @@ exports.test = async function (req, res) {
       options,
       function (err, results) {
         if (err) throw err;
-        const words = results[2].split(",");
-        console.log(words);
-        res.send(response(baseResponse.SUCCESS, results[2]));
       }
     );
   } catch (err) {
     console.log(err.message);
   }
+};
+
+exports.test2 = async function (req, res) {
+  let value = body;
+  res.send(response(baseResponse.SUCCESS, value));
 };
 
 /**

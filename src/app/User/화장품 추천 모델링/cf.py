@@ -1,8 +1,10 @@
 import sys
+from unittest import result
 import warnings
 import numpy as np
 import pandas as pd
 import surprise
+import requests
 from sklearn.decomposition import NMF # Use this for training Non-negative Matrix Factorization
 from sklearn.utils.extmath import randomized_svd # Use this for training Singular Value Decomposition
 from sklearn.manifold import TSNE # Use this for training t-sne manifolding
@@ -60,7 +62,11 @@ def getData():
             #result.append((df_product[df_product['00.상품코드']==code]['02.상품명'].to_json(orient='index', force_ascii=False)))
             result.append(code)
     
-    print(result)
+url = 'http://18.232.223.21/test2'
+
+response = requests.post(url, data=result)
+
+
     
     
     
