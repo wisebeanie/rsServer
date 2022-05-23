@@ -49,7 +49,6 @@ exports.test = async function (req, res) {
       "src/app/User/화장품 추천 모델링/cf.py",
       options,
       function (err, results) {
-        console.log(results);
         if (err) {
           console.log(err.message);
         }
@@ -61,8 +60,8 @@ exports.test = async function (req, res) {
 };
 
 exports.test2 = async function (req, res) {
-  let value = body;
-  res.send(response(baseResponse.SUCCESS, value));
+  let { result } = body;
+  res.send(response(baseResponse.SUCCESS, result));
 };
 
 /**
