@@ -52,8 +52,8 @@ exports.test = async function (req, res) {
         if (err) {
           console.log(err.message);
         }
-        console.log(results);
-        var codeData = JSON.parse(results).code;
+        console.log(results[2]);
+        var codeData = JSON.parse(results[2]).code;
 
         buffer = new Buffer.from(codeData);
         console.log(buffer);
