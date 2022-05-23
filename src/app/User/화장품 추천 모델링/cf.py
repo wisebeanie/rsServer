@@ -52,10 +52,12 @@ def getData():
         cos_id = data.df[(data.df['total_rating']==max_rating)&(data.df['user']==name_list[r1])]['code'].values
         
         code_list.append(cos_id)
-        
+    
+    result = []
+    
     for codes in code_list:
         for code in codes:
-            print(df_product[df_product['00.상품코드']==code]['02.상품명'].to_json(orient='index', force_ascii=False))
+            print(df_product[df_product['00.상품코드']==code]['02.상품명'].to_json(orient='index', force_ascii=False), end='')
     
     
     
