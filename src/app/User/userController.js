@@ -51,7 +51,7 @@ exports.test = async function (req, res) {
       function (err, results) {
         if (err) throw err;
 
-        res.send(response(baseResponse.SUCCESS, results));
+        res.send(response(baseResponse.SUCCESS, results[2]));
       }
     );
   } catch (err) {
