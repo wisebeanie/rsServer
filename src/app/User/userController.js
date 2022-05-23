@@ -33,8 +33,9 @@ exports.test = async function (req, res) {
     const python = spawn("python3", ["src/app/User/화장품 추천 모델링/cf.py"]);
 
     python.stdout.on("data", (data) => {
+      console.log(data);
       dataTosend = data.toString();
-      console.log(dataTosend);
+      //console.log(dataTosend);
     });
     python.on("close", (code) => {
       res.send(response(baseResponse.SUCCESS, dataTosend));
