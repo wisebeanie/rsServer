@@ -52,8 +52,11 @@ exports.test = async function (req, res) {
         if (err) {
           console.log(err.message);
         }
+        return 0;
       }
     );
+
+    return 0;
   } catch (err) {
     console.log(err.message);
   }
