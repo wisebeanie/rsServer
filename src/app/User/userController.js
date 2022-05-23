@@ -4,7 +4,7 @@ const userService = require("../../app/User/userService");
 const baseResponse = require("../../../config/baseResponseStatus");
 const { response, errResponse } = require("../../../config/response");
 
-var PythonShell = require("python-shell");
+var { PythonShell } = require("python-shell");
 
 const regexEmail = require("regex-email");
 const { emit } = require("nodemon");
