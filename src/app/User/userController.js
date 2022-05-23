@@ -64,6 +64,7 @@ exports.test = async function (req, res) {
 
 exports.test2 = async function (req, res) {
   let { result } = req.body;
+  console.log(result);
   res.send(response(baseResponse.SUCCESS, result));
 };
 
