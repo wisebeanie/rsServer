@@ -50,7 +50,9 @@ exports.test = async function (req, res) {
       options,
       function (err, results) {
         console.log(results);
-        if (err) throw err;
+        if (err) {
+          console.log(err.message);
+        }
       }
     );
   } catch (err) {
