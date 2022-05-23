@@ -8,6 +8,7 @@ const { spawn } = require("child_process");
 const regexEmail = require("regex-email");
 const { emit } = require("nodemon");
 const axios = require("axios");
+const { text } = require("express");
 
 /**
  * API No. 0
@@ -33,13 +34,16 @@ exports.test = async function (req, res) {
     const python = spawn("python3", ["src/app/User/화장품 추천 모델링/cf.py"]);
 
     python.stdout.on("data", (data) => {
-      console.log(data);
-      dataTosend = data.toString();
+      let textChunk = data.toString("utf-8");
+      console.log(textChunk);
+      text = textChunk.replaceAll("'", '"');
+      textChunk = textChunk.replaceAll("None", '"None"');
+      res.json(textChunk);
       //console.log(dataTosend);
     });
-    python.on("close", (code) => {
-      res.send(response(baseResponse.SUCCESS, dataTosend));
-    });
+    // python.on("close", (code) => {
+    //   res.send(response(baseResponse.SUCCESS, dataTosend));
+    // });
 
     python.stderr.on("data", function (data) {
       console.log(data.toString());
