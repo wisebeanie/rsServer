@@ -50,7 +50,7 @@ exports.test = async function (req, res) {
       options,
       function (err, results) {
         if (err) throw err;
-        const words = results[2].split("[ ]");
+        const words = results[2].split(",");
         console.log(words);
         res.send(response(baseResponse.SUCCESS, results[2]));
       }
