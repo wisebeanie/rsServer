@@ -21,7 +21,7 @@ const { text } = require("express");
 // }
 
 var options = {
-  mode: "json",
+  mode: "text",
   pythonPath: "",
   pythonOptions: ["-u"],
   scriptPath: "",

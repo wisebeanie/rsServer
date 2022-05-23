@@ -59,7 +59,7 @@ def getData():
         for code in codes:
             result.append((df_product[df_product['00.상품코드']==code]['02.상품명'].to_json(orient='index', force_ascii=False)))
     
-    return result
+    print(result)
     
     
     
