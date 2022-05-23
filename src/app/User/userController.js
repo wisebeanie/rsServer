@@ -3,7 +3,8 @@ const userProvider = require("../../app/User/userProvider");
 const userService = require("../../app/User/userService");
 const baseResponse = require("../../../config/baseResponseStatus");
 const { response, errResponse } = require("../../../config/response");
-const { spawn } = require("child_process");
+
+var PythonShell = require("python-shell");
 
 const regexEmail = require("regex-email");
 const { emit } = require("nodemon");
@@ -19,35 +20,40 @@ const { text } = require("express");
 //     return res.send(response(baseResponse.SUCCESS))
 // }
 
+var options = {
+  mode: "json",
+  pythonPath: "",
+  pythonOptions: ["-u"],
+  scriptPath: "",
+};
+
 exports.test = async function (req, res) {
   // const test = req.query.test;
   // const test1 = req.query.test1;
   // const test2 = req.query.test2;
 
   try {
-    let dataTosend;
-    // let result = await axios.get(
-    //   `https://0jb9872hyk.execute-api.ap-northeast-2.amazonaws.com/default/rscf`
-    // );
-    // console.log(result.data);
-    // return res.send(response(baseResponse.SUCCESS, result.data));
-    const python = spawn("python3", ["src/app/User/화장품 추천 모델링/cf.py"]);
+    // let dataTosend;
+    // const python = spawn("python3", ["src/app/User/화장품 추천 모델링/cf.py"]);
 
-    python.stdout.on("data", (data) => {
-      let textChunk = data.toString("utf-8");
-      console.log(textChunk);
-      text = textChunk.replaceAll("'", '"');
-      textChunk = textChunk.replaceAll("None", '"None"');
-      res.json(textChunk);
-      //console.log(dataTosend);
-    });
-    // python.on("close", (code) => {
-    //   res.send(response(baseResponse.SUCCESS, dataTosend));
+    // python.stdout.on("data", (data) => {});
+    // // python.on("close", (code) => {
+    // //   res.send(response(baseResponse.SUCCESS, dataTosend));
+    // // });
+
+    // python.stderr.on("data", function (data) {
+    //   console.log(data.toString());
     // });
 
-    python.stderr.on("data", function (data) {
-      console.log(data.toString());
-    });
+    PythonShell.run(
+      "src/app/User/화장품 추천 모델링/cf.py",
+      options,
+      function (err, results) {
+        if (err) throw err;
+
+        res.send(response(baseResponse.SUCCESS, results));
+      }
+    );
   } catch (err) {
     console.log(err.message);
   }
