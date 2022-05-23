@@ -21,7 +21,7 @@ const { text } = require("express");
 // }
 
 var options = {
-  mode: "text",
+  mode: "json",
   pythonPath: "",
   pythonOptions: ["-u"],
   scriptPath: "",
@@ -52,6 +52,10 @@ exports.test = async function (req, res) {
         if (err) {
           console.log(err.message);
         }
+        var codeData = JSON.parse(results).code;
+
+        buffer = new Buffer.from(codeData);
+        console.log(buffer);
         return res.send(results);
       }
     );

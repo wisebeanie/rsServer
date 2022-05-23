@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import surprise
 import requests
+import json
 from sklearn.decomposition import NMF # Use this for training Non-negative Matrix Factorization
 from sklearn.utils.extmath import randomized_svd # Use this for training Singular Value Decomposition
 from sklearn.manifold import TSNE # Use this for training t-sne manifolding
@@ -61,12 +62,9 @@ def getData():
         for code in codes:
             #result.append((df_product[df_product['00.상품코드']==code]['02.상품명'].to_json(orient='index', force_ascii=False)))
             result.append(code)
-            
-    url = 'http://18.232.223.21/test2'
-
-    response = requests.post(url, json={'result': result})
+    result1 = json.dumps({'code': result})
     
-    print(response)
+    print(result1)       
 
 
     
